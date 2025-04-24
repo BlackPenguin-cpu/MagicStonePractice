@@ -12,6 +12,8 @@ public class MagicStoneDataEditor : Editor
 
         // 일반 속성
         item.stoneName = EditorGUILayout.TextField("Stone Name", item.stoneName);
+        item.skillName = EditorGUILayout.TextField("Stone SkillName", item.skillName);
+        item.description = EditorGUILayout.TextField("Stone Desc", item.description);
         item.stoneIcon = (Sprite)EditorGUILayout.ObjectField("Stone Icon", item.stoneIcon, typeof(Sprite), false);
         item.width = EditorGUILayout.IntField("Width", item.width);
         item.height = EditorGUILayout.IntField("Height", item.height);

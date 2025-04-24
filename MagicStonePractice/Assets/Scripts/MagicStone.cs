@@ -7,8 +7,6 @@ public class MagicStone : MonoBehaviour, IPointerDownHandler
     public MagicStoneData magicStoneData;
     public Image magicStoneIcon;
 
-    private readonly Color selectedColor = new Color(1, 1, 1, 0.5f);
-
     public void OnClick()
     {
         
@@ -16,6 +14,7 @@ public class MagicStone : MonoBehaviour, IPointerDownHandler
 
     public void OnHold()
     {
+        
     }
 
     public void OnDrop()
@@ -25,7 +24,6 @@ public class MagicStone : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        magicStoneIcon.color = selectedColor;
-        MagicStoneManager.instance.OnClickStone(magicStoneData);
+        MagicStoneManager.Instance.OnClickStone(magicStoneData);
     }
 }

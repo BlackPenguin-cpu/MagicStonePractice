@@ -8,6 +8,8 @@ public class MagicStoneData : ScriptableObject
     public int height;
     public int width; public Sprite stoneIcon;
     public string stoneName;
+    public string skillName;
+    public string description;
 
     public List<Cell> shape = new List<Cell>();
     

@@ -10,14 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7fd27ab49587e445a0ab747b644f3f4, type: 3}
-  m_Name: FireStone
+  m_Name: 1x1DummyBlock 1
   m_EditorClassIdentifier: 
-  height: 2
-  width: 2
-  stoneIcon: {fileID: 21300000, guid: 55eab0a1e432d69448e77ae316e2f323, type: 3}
-  stoneName: "\uBD88 \uB9C8\uBC95\uC11D"
+  height: 1
+  width: 1
+  stoneIcon: {fileID: 21300000, guid: 3a8e9a1c012bb9f4faf6d56f531c3467, type: 3}
+  stoneName: "1x1\uB354\uBBF8 \uB9C8\uBC95\uC11D"
   skillName: 
   description: 
   shape:
-  - cols: 0100
-  - cols: 0101
+  - cols: 01

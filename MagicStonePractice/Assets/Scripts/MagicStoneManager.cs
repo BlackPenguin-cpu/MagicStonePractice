@@ -1,22 +1,16 @@
 using System;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.Timeline;
 using UnityEngine.UI;
 
-public class MagicStoneManager : MonoBehaviour
+public class MagicStoneManager : Singleton<MagicStoneManager>
 {
-    public static MagicStoneManager instance;
-
     [SerializeField] private GameObject magicStoneInventory;
     [SerializeField] private Image magicStonePrefab;
-    
+
     private MagicStoneData selectedMagicStoneData;
     private Image selectedMagicStoneObj;
-
-    private void Awake()
-    {
-        instance = this;
-    }
 
     private void Update()
     {
@@ -29,11 +23,24 @@ public class MagicStoneManager : MonoBehaviour
         {
             OnHold();
         }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            OnMouseButtonUp();
+        }
+    }
+
+    private void OnMouseButtonUp()
+    {
+        selectedMagicStoneObj.gameObject.SetActive(false);
+        var pos = Input.mousePosition;
+        
+        Debug.Log(MagicStoneGridManager.Instance.ScreenToCell(pos));
     }
 
     private void OnHold()
     {
-        if (selectedMagicStoneObj)
+        if (selectedMagicStoneObj.IsActive())
         {
             selectedMagicStoneObj.rectTransform.position = Input.mousePosition;
         }
@@ -42,7 +49,13 @@ public class MagicStoneManager : MonoBehaviour
     public void OnClickStone(MagicStoneData stoneData)
     {
         selectedMagicStoneData = stoneData;
-        selectedMagicStoneObj = Instantiate(magicStonePrefab,magicStoneInventory.transform);
+        if (selectedMagicStoneObj == null)
+        {
+            selectedMagicStoneObj = Instantiate(magicStonePrefab, magicStoneInventory.transform);
+        }
+        
         selectedMagicStoneObj.sprite = stoneData.stoneIcon;
+        selectedMagicStoneObj.SetNativeSize();
+        selectedMagicStoneObj.gameObject.SetActive(true);
     }
 }
