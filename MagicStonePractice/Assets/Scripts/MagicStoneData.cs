@@ -5,8 +5,11 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(fileName = "MagicStoneInventory", menuName = "MagicStoneData")]
 public class MagicStoneData : ScriptableObject
 {
+    public Vector2Int size => new(width,height);
+
     public int height;
-    public int width; public Sprite stoneIcon;
+    public int width;
+    public Sprite stoneIcon;
     public string stoneName;
     public string skillName;
     public string description;
@@ -20,14 +23,8 @@ public class MagicStoneData : ScriptableObject
 
         public bool this[int index]
         {
-            set
-            {
-                cols[index] = value;
-            }
-            get
-            {
-                return cols[index];    
-            }           
+            set => cols[index] = value;
+            get => cols[index];
         }
     }
 }
