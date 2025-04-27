@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class MagicStoneManager : Singleton<MagicStoneManager>
 {
-    [SerializeField] private GameObject magicStoneInventory;
+    [SerializeField] private GameObject magicStoneGridObj;
     [SerializeField] private Image magicStonePrefab;
 
     public const float CELL_SIZE = 100f;
@@ -38,28 +38,28 @@ public class MagicStoneManager : Singleton<MagicStoneManager>
     private void OnMouseButtonUp()
     {
         selectedMagicStoneObj.gameObject.SetActive(false);
-        var size = new Vector2Int(selectedMagicStoneData.width, selectedMagicStoneData.height);
-        var pos = MagicStoneGridManager.Instance.StonePosToGridPos(Input.mousePosition, size);
+        var pos = MagicStoneGridManager.Instance.ScreenToCell(Input.mousePosition);
+        var value = MagicStoneInventory.Instance.CanPlace(selectedMagicStoneData, pos);
+
+        Debug.Log(pos);
+        Debug.Log(value);
     }
 
     private void OnHold()
     {
-        if (selectedMagicStoneObj.IsActive())
-        {
-            var pos = BlockParsePos(Input.mousePosition, selectedMagicStoneData.size);
-            selectedMagicStoneObj.rectTransform.position = pos;
-        }
+        if (!selectedMagicStoneObj.IsActive()) return;
+
+        var pos = BlockParsePos(Input.mousePosition, selectedMagicStoneData.Size);
+        selectedMagicStoneObj.rectTransform.position = pos;
     }
 
     private Vector2 BlockParsePos(Vector2 mousePos, Vector2Int blockSize)
     {
-        var uiPos = mousePos;
-
         int offsetX = blockSize.x % 2 == 0 ? 1 : 0;
         int offsetY = blockSize.y % 2 == 0 ? 1 : 0;
         var realSize = CELL_SIZE * GridScale.x;
 
-        return uiPos + new Vector2(offsetX * realSize / 2f, offsetY * realSize / 2f);
+        return mousePos + new Vector2(offsetX * realSize / 2f, -offsetY * realSize / 2f);
     }
 
     public void OnClickStone(MagicStoneData stoneData)
@@ -67,7 +67,7 @@ public class MagicStoneManager : Singleton<MagicStoneManager>
         selectedMagicStoneData = stoneData;
         if (selectedMagicStoneObj == null)
         {
-            selectedMagicStoneObj = Instantiate(magicStonePrefab, magicStoneInventory.transform);
+            selectedMagicStoneObj = Instantiate(magicStonePrefab, magicStoneGridObj.transform);
         }
 
         selectedMagicStoneObj.sprite = stoneData.stoneIcon;

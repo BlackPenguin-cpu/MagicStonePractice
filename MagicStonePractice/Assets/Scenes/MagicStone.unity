@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 14032118}
   - component: {fileID: 14032119}
+  - component: {fileID: 14032120}
   m_Layer: 5
   m_Name: MagicStoneInventory
   m_TagString: Untagged
@@ -169,6 +170,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridRectTransform: {fileID: 1065607255}
+--- !u!114 &14032120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 14032117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f023ab07a48e7846bc37c0edff4f27a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &221633675
 GameObject:
   m_ObjectHideFlags: 0
@@ -886,11 +899,11 @@ RectTransform:
   - {fileID: 526245240}
   m_Father: {fileID: 14032118}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -150, y: -150}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: -150, y: 150}
   m_SizeDelta: {x: 400, y: 400}
-  m_Pivot: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 1}
 --- !u!1 &1108151720
 GameObject:
   m_ObjectHideFlags: 0
@@ -1319,7 +1332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 029c3319cac789c45a985a81e9721c8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  magicStoneInventory: {fileID: 14032117}
+  magicStoneGridObj: {fileID: 14032117}
   magicStonePrefab: {fileID: 7266909240764376969, guid: 1f4f44fa2360428489255144c9f86547, type: 3}
 --- !u!4 &1555595499
 Transform:

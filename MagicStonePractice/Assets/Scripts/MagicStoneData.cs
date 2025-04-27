@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(fileName = "MagicStoneInventory", menuName = "MagicStoneData")]
 public class MagicStoneData : ScriptableObject
 {
-    public Vector2Int size => new(width,height);
+    public Vector2Int Size => new(width,height);
 
     public int height;
     public int width;
