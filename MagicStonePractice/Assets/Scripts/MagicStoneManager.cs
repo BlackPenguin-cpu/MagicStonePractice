@@ -8,14 +8,11 @@ using UnityEngine.UI;
 public class MagicStoneManager : Singleton<MagicStoneManager>
 {
     [SerializeField] private GameObject magicStoneGridObj;
-    [SerializeField] private Image magicStonePrefab;
+    [SerializeField] private MagicStoneObj magicStonePrefab;
 
-    public const float CELL_SIZE = 100f;
-
-    public Vector3 GridScale => MagicStoneGridManager.Instance.transform.localScale;
 
     private MagicStoneData selectedMagicStoneData;
-    private Image selectedMagicStoneObj;
+    private MagicStoneObj selectedMagicStoneObj;
 
     private void Update()
     {
@@ -37,41 +34,57 @@ public class MagicStoneManager : Singleton<MagicStoneManager>
 
     private void OnMouseButtonUp()
     {
-        selectedMagicStoneObj.gameObject.SetActive(false);
-        var pos = MagicStoneGridManager.Instance.ScreenToCell(Input.mousePosition);
-        var value = MagicStoneInventory.Instance.CanPlace(selectedMagicStoneData, pos);
+        if (!selectedMagicStoneObj) return;
 
-        Debug.Log(pos);
-        Debug.Log(value);
+        var pos = MagicStoneGridManager.Instance.ScreenToCell(Input.mousePosition);
+        var isPlace = MagicStoneInventory.Instance.TryPlace(selectedMagicStoneData, pos);
+
+        if (isPlace)
+        {
+            var stonePos = MagicStoneGridManager.Instance.CellPosToStonePos(pos, selectedMagicStoneData.Size);
+            selectedMagicStoneObj.transform.localPosition = stonePos;
+            selectedMagicStoneObj = null;
+        }
+        else
+        {
+            selectedMagicStoneObj.gameObject.SetActive(false);
+        }
     }
 
     private void OnHold()
     {
-        if (!selectedMagicStoneObj.IsActive()) return;
+        if (!selectedMagicStoneObj) return;
 
         var pos = BlockParsePos(Input.mousePosition, selectedMagicStoneData.Size);
-        selectedMagicStoneObj.rectTransform.position = pos;
+        selectedMagicStoneObj.transform.position = pos;
     }
 
     private Vector2 BlockParsePos(Vector2 mousePos, Vector2Int blockSize)
     {
         int offsetX = blockSize.x % 2 == 0 ? 1 : 0;
         int offsetY = blockSize.y % 2 == 0 ? 1 : 0;
-        var realSize = CELL_SIZE * GridScale.x;
+        var realSize = MagicStoneGridManager.CELL_SIZE * MagicStoneGridManager.Instance.GridScaleMultiply;
 
         return mousePos + new Vector2(offsetX * realSize / 2f, -offsetY * realSize / 2f);
+    }
+
+    public void OnClickStone(MagicStoneObj stoneObj)
+    {
+        selectedMagicStoneData = stoneObj.magicStoneData;
+        selectedMagicStoneObj = stoneObj;
     }
 
     public void OnClickStone(MagicStoneData stoneData)
     {
         selectedMagicStoneData = stoneData;
-        if (selectedMagicStoneObj == null)
+        if (!selectedMagicStoneObj)
         {
             selectedMagicStoneObj = Instantiate(magicStonePrefab, magicStoneGridObj.transform);
         }
 
-        selectedMagicStoneObj.sprite = stoneData.stoneIcon;
-        selectedMagicStoneObj.SetNativeSize();
+        selectedMagicStoneObj.magicStoneData = stoneData;
+        selectedMagicStoneObj.Image.sprite = stoneData.stoneIcon;
+        selectedMagicStoneObj.Image.SetNativeSize();
         selectedMagicStoneObj.gameObject.SetActive(true);
     }
 }

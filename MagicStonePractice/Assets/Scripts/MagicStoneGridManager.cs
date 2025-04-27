@@ -4,7 +4,9 @@ using UnityEngine.Serialization;
 public class MagicStoneGridManager : Singleton<MagicStoneGridManager>
 {
     [SerializeField] private RectTransform gridRectTransform;
-    
+    public const float CELL_SIZE = 100f;
+    public float GridScaleMultiply => transform.localScale.x;
+
     public Vector2Int ScreenToCell(Vector2 screenPos)
     {
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -13,30 +15,30 @@ public class MagicStoneGridManager : Singleton<MagicStoneGridManager>
             null,
             out Vector2 localPos
         );
+        int col = Mathf.FloorToInt(localPos.x / CELL_SIZE);
+        int row = Mathf.FloorToInt(-localPos.y / CELL_SIZE);
 
-        int col = Mathf.FloorToInt(localPos.x / MagicStoneManager.CELL_SIZE);
-        int row = Mathf.FloorToInt(localPos.y / MagicStoneManager.CELL_SIZE);
-
-        return new Vector2Int(col, -row);
+        return new Vector2Int(col, row);
     }
 
-    public Vector2 StonePosToGridPos(Vector2 mousePos, Vector2Int size)
+    public Vector2 CellPosToStonePos(Vector2 cellPos, Vector2Int size)
     {
-        var cellPos = ScreenToCell(mousePos);
+        var xOffset = size.x % 2 == 0 ? 50 : 0;
+        var yOffset = size.y % 2 == 0 ? 50 : 0;
 
-        int offsetX = size.x % 2 == 0 ? 1 : 0;
-        int offsetY = size.y % 2 == 0 ? 1 : 0;
+        var returnValue = new Vector2(cellPos.x - 2, cellPos.y - 2);
+        returnValue *= CELL_SIZE;
+        returnValue += new Vector2(50 + xOffset, 50 + yOffset);
 
-        float x = cellPos.x - offsetX;
-        float y = cellPos.y - offsetY;
-        return new Vector2(x, -y);
+        return new Vector2(returnValue.x, -returnValue.y);
     }
 
     public Vector2 CellToWorld(Vector2Int cell)
     {
-        var cellSize = MagicStoneManager.CELL_SIZE;
+        var cellSize = CELL_SIZE;
         float x = cell.x * cellSize + cellSize / 2f;
         float y = -(cell.y * cellSize + cellSize / 2f);
         return new Vector2(x, y);
     }
+    
 }

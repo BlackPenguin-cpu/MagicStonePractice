@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 1516864974507172973}
   - component: {fileID: 27455735587829951}
   - component: {fileID: 7266909240764376969}
+  - component: {fileID: -8555056702498282537}
   m_Layer: 5
-  m_Name: FireStone
+  m_Name: StoneImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -75,3 +76,16 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &-8555056702498282537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8913827511080101804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b252afe944552f48a488c20ac06b860, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  magicStoneData: {fileID: 0}

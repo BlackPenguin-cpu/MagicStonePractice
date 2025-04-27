@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class MagicStoneDictionary : MonoBehaviour
 {
     [SerializeField] private Transform stoneParent;
-    [SerializeField] private MagicStone stonePrefab;
+    [SerializeField] private MagicStoneSelectUI stonePrefab;
     [SerializeField] private List<MagicStoneData> stoneDataList;
     [SerializeField] private GridLayoutGroup gridLayoutGroup;
 

@@ -14,6 +14,9 @@ public class MagicStoneData : ScriptableObject
     public string skillName;
     public string description;
 
+    /// <summary>
+    ///  [y][x]
+    /// </summary>
     public List<Cell> shape = new List<Cell>();
     
     [System.Serializable]

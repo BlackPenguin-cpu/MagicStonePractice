@@ -2,10 +2,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class MagicStone : MonoBehaviour, IPointerDownHandler
+public class MagicStoneSelectUI : MonoBehaviour, IPointerDownHandler
 {
     public MagicStoneData magicStoneData;
     public Image magicStoneIcon;
+    
+    public bool isInventoryStone;
 
     public void OnClick()
     {
