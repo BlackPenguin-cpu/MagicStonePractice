@@ -1,14 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class MagicStoneDictionary : MonoBehaviour
+public class MagicStoneDictionary : Singleton<MagicStoneDictionary>
 {
     [SerializeField] private Transform stoneParent;
-    [SerializeField] private MagicStoneSelectUI stonePrefab;
-    [SerializeField] private List<MagicStoneData> stoneDataList;
+    [SerializeField] private MagicStoneSelectUI stoneSelectUIPrefab;
     [SerializeField] private GridLayoutGroup gridLayoutGroup;
+    [SerializeField] private List<MagicStoneData> stoneDataList;
+
+    private Dictionary<string, MagicStoneData> _stoneDataDictionary;
+    public Dictionary<string, MagicStoneData> StoneDataDictionary
+    {
+        get
+        {
+            if (_stoneDataDictionary == null)
+            {
+                _stoneDataDictionary = new Dictionary<string, MagicStoneData>();
+                foreach (var data in stoneDataList)
+                {
+                    _stoneDataDictionary.Add(data.stoneName, data);
+                }
+            }
+
+            return _stoneDataDictionary;
+        }
+        private set => _stoneDataDictionary = value;
+    }
+
+    private List<MagicStoneSelectUI> stoneSelectUIList = new List<MagicStoneSelectUI>();
 
     void Start()
     {
@@ -19,12 +41,23 @@ public class MagicStoneDictionary : MonoBehaviour
     {
         foreach (var magicStoneData in stoneDataList)
         {
-            var obj = Instantiate(stonePrefab, stoneParent);
-            obj.magicStoneIcon.sprite = magicStoneData.stoneIcon;
-            obj.magicStoneData = magicStoneData;
+            var selectUI = Instantiate(stoneSelectUIPrefab, stoneParent);
+            selectUI.magicStoneIcon.sprite = magicStoneData.stoneIcon;
+            selectUI.magicStoneData = magicStoneData;
+
+            stoneSelectUIList.Add(selectUI);
         }
 
         yield return null;
         gridLayoutGroup.enabled = false;
+        SelectUIUpdate();
+    }
+
+    public void SelectUIUpdate()
+    {
+        foreach (var selectUI in stoneSelectUIList)
+        {
+            selectUI.OnStateUpdate();
+        }
     }
 }

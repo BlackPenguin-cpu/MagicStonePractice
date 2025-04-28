@@ -5,36 +5,14 @@ using UnityEngine;
 
 public class MagicStoneInventory : Singleton<MagicStoneInventory>
 {
+    public int presetNum = 0;
+    public List<MagicStoneObj> nowPlaceObjList = new List<MagicStoneObj>();
+
     private const int invenSize = 4;
     private MagicStoneData[,] inventoryGridState = new MagicStoneData[invenSize, invenSize];
-    private List<PlaceStoneInfo> placeStoneInfoList = new List<PlaceStoneInfo>();
 
-    private struct PlaceStoneInfo : IEquatable<PlaceStoneInfo>
-    {
-        public MagicStoneData magicStoneData;
-        public List<Vector2Int> posList;
-
-        public PlaceStoneInfo(MagicStoneData magicStoneData, List<Vector2Int> posList)
-        {
-            this.magicStoneData = magicStoneData;
-            this.posList = posList;
-        }
-
-        public bool Equals(PlaceStoneInfo other)
-        {
-            return Equals(magicStoneData, other.magicStoneData) && Equals(posList, other.posList);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is PlaceStoneInfo other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(magicStoneData, posList);
-        }
-    }
+    private Dictionary<string, BlockPosInfo> placeStoneInfoDictionary =
+        new Dictionary<string, BlockPosInfo>();
 
     public bool CanPlace(MagicStoneData stoneData, Vector2Int pos)
     {
@@ -70,11 +48,13 @@ public class MagicStoneInventory : Singleton<MagicStoneInventory>
 
         var topLeftPos = GetTopLeftForStone(pos, stoneData.Size);
 
-        List<Vector2Int> posList = new List<Vector2Int>();
+        var posList = new DisposableList<Vector2Int>();
         for (int x = 0; x < stoneData.width; x++)
         {
             for (int y = 0; y < stoneData.height; y++)
             {
+                if (stoneData.shape[y][x] == false) continue;
+
                 int checkX = topLeftPos.x + x;
                 int checkY = topLeftPos.y + y;
 
@@ -83,12 +63,14 @@ public class MagicStoneInventory : Singleton<MagicStoneInventory>
             }
         }
 
-        placeStoneInfoList.Add(new PlaceStoneInfo(stoneData, posList));
+        placeStoneInfoDictionary.Add(stoneData.stoneName, new BlockPosInfo(pos, posList));
+        var saveInfo = new InventoryInfo(placeStoneInfoDictionary);
+        MagicStoneInventorySaveManager.Instance.SaveCurInventory(saveInfo, presetNum);
 
         return true;
     }
 
-    Vector2Int GetTopLeftForStone(Vector2Int cellPos, Vector2Int stoneSize)
+    private Vector2Int GetTopLeftForStone(Vector2Int cellPos, Vector2Int stoneSize)
     {
         int halfX = stoneSize.x / 2;
         int halfY = stoneSize.y / 2;
@@ -100,15 +82,67 @@ public class MagicStoneInventory : Singleton<MagicStoneInventory>
         return baseTopLeft + new Vector2Int(offsetX, offsetY);
     }
 
+    public bool IsAlreadyPlace(MagicStoneData stoneData)
+    {
+        return placeStoneInfoDictionary.ContainsKey(stoneData.stoneName);
+    }
+
     public void UnequippedStone(MagicStoneData stoneData)
     {
-        var info = placeStoneInfoList.Find((x) => x.magicStoneData == stoneData);
+        placeStoneInfoDictionary.TryGetValue(stoneData.stoneName, out var posList);
+        if (posList.gridPosList.Count <= 0) return;
 
-        foreach (var pos in info.posList)
+        foreach (var pos in posList.gridPosList)
         {
             inventoryGridState[pos.x, pos.y] = null;
         }
-        
-        placeStoneInfoList.Remove(info);
+
+        placeStoneInfoDictionary.Remove(stoneData.stoneName);
+    }
+
+    private void Start()
+    {
+        var loadInventory = MagicStoneInventorySaveManager.Instance.LoadInventory(presetNum);
+
+        if (!loadInventory.HasValue) return;
+        NowStateApply(loadInventory.Value.placeStoneInfoDictionary);
+    }
+
+    private void NowStateApply(Dictionary<string, BlockPosInfo> stoneInfoDictionary)
+    {
+        foreach (var placeStoneInfo in stoneInfoDictionary)
+        {
+            var data = MagicStoneDictionary.Instance.StoneDataDictionary[placeStoneInfo.Key];
+            var blockPosInfo = placeStoneInfo.Value;
+            TryPlace(data, blockPosInfo.realPos);
+            MagicStoneManager.Instance.MagicStonePlaceOnInventory(data, blockPosInfo.realPos);
+        }
+    }
+}
+
+[System.Serializable]
+public struct InventoryInfo
+{
+    /// <summary>
+    /// key = BlockName
+    /// </summary>
+    public Dictionary<string, BlockPosInfo> placeStoneInfoDictionary;
+
+    public InventoryInfo(Dictionary<string, BlockPosInfo> placeStoneInfoDictionary)
+    {
+        this.placeStoneInfoDictionary = placeStoneInfoDictionary;
+    }
+}
+
+[System.Serializable]
+public struct BlockPosInfo
+{
+    public Vector2Int realPos;
+    public List<Vector2Int> gridPosList;
+
+    public BlockPosInfo(Vector2Int realPos, List<Vector2Int> gridPosList)
+    {
+        this.realPos = realPos;
+        this.gridPosList = gridPosList;
     }
 }

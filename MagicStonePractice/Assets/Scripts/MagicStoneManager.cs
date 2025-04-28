@@ -7,12 +7,13 @@ using UnityEngine.UI;
 
 public class MagicStoneManager : Singleton<MagicStoneManager>
 {
-    [SerializeField] private GameObject magicStoneGridObj;
-    [SerializeField] private MagicStoneObj magicStonePrefab;
+    [SerializeField, HideInInspector] private GameObject magicStoneGridObj;
+    [SerializeField, HideInInspector] private MagicStoneObj magicStonePrefab;
 
+    [SerializeField] private MagicStoneData selectedMagicStoneData;
+    [SerializeField] private MagicStoneObj selectedMagicStoneObj;
 
-    private MagicStoneData selectedMagicStoneData;
-    private MagicStoneObj selectedMagicStoneObj;
+    public static readonly Color invisibleColor = new Color(1f, 1f, 1f, 0.4f);
 
     private void Update()
     {
@@ -34,26 +35,44 @@ public class MagicStoneManager : Singleton<MagicStoneManager>
 
     private void OnMouseButtonUp()
     {
-        if (!selectedMagicStoneObj) return;
+        if (!selectedMagicStoneObj || !selectedMagicStoneObj.gameObject.activeSelf) return;
 
         var pos = MagicStoneGridManager.Instance.ScreenToCell(Input.mousePosition);
         var isPlace = MagicStoneInventory.Instance.TryPlace(selectedMagicStoneData, pos);
 
         if (isPlace)
         {
-            var stonePos = MagicStoneGridManager.Instance.CellPosToStonePos(pos, selectedMagicStoneData.Size);
-            selectedMagicStoneObj.transform.localPosition = stonePos;
+            MagicStonePlaceOnInventory(selectedMagicStoneObj, pos);
             selectedMagicStoneObj = null;
         }
         else
         {
             selectedMagicStoneObj.gameObject.SetActive(false);
         }
+
+        MagicStoneDictionary.Instance.SelectUIUpdate();
+    }
+
+    public void MagicStonePlaceOnInventory(MagicStoneData data, Vector2 cellPos)
+    {
+        var obj = Instantiate(magicStonePrefab, magicStoneGridObj.transform);
+        obj.Init(data);
+        MagicStonePlaceOnInventory(obj,cellPos);
+    }
+
+    private void MagicStonePlaceOnInventory(MagicStoneObj obj, Vector2 pos)
+    {
+        var stonePos = MagicStoneGridManager.Instance.CellPosToStonePos(pos, obj.magicStoneData.Size);
+
+        obj.transform.localPosition = stonePos;
+        obj.Image.color = Color.white;
+        MagicStoneInventory.Instance.nowPlaceObjList.Add(obj);
     }
 
     private void OnHold()
     {
-        if (!selectedMagicStoneObj) return;
+        if (!selectedMagicStoneObj || !selectedMagicStoneObj.gameObject.activeSelf) return;
+
 
         var pos = BlockParsePos(Input.mousePosition, selectedMagicStoneData.Size);
         selectedMagicStoneObj.transform.position = pos;
@@ -82,9 +101,15 @@ public class MagicStoneManager : Singleton<MagicStoneManager>
             selectedMagicStoneObj = Instantiate(magicStonePrefab, magicStoneGridObj.transform);
         }
 
-        selectedMagicStoneObj.magicStoneData = stoneData;
-        selectedMagicStoneObj.Image.sprite = stoneData.stoneIcon;
-        selectedMagicStoneObj.Image.SetNativeSize();
+        selectedMagicStoneObj.Init(stoneData);
+        selectedMagicStoneObj.Image.color = invisibleColor;
         selectedMagicStoneObj.gameObject.SetActive(true);
+    }
+
+    public bool IsStoneAlreadySelected(MagicStoneData data)
+    {
+        if (!selectedMagicStoneObj || !selectedMagicStoneObj.gameObject.activeSelf) return false;
+
+        return selectedMagicStoneData == data;
     }
 }

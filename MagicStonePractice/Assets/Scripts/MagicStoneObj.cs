@@ -7,18 +7,13 @@ public class MagicStoneObj : MonoBehaviour, IPointerDownHandler
     public MagicStoneData magicStoneData;
 
     private Image _image;
+    public Image Image => _image ??= GetComponent<Image>();
 
-    public Image Image
+    public void Init(MagicStoneData data)
     {
-        get
-        {
-            if (!_image)
-            {
-                _image = GetComponent<Image>();
-            }
-
-            return _image;
-        }
+        magicStoneData = data;
+        Image.sprite = data.stoneIcon;
+        Image.SetNativeSize();
     }
 
     public void OnPointerDown(PointerEventData eventData)
