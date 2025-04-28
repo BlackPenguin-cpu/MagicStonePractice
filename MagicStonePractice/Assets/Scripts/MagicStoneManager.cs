@@ -9,6 +9,7 @@ public class MagicStoneManager : Singleton<MagicStoneManager>
 {
     [SerializeField, HideInInspector] private GameObject magicStoneGridObj;
     [SerializeField, HideInInspector] private MagicStoneObj magicStonePrefab;
+    [SerializeField, HideInInspector] private MagicStoneDescription descText;
 
     [SerializeField] private MagicStoneData selectedMagicStoneData;
     [SerializeField] private MagicStoneObj selectedMagicStoneObj;
@@ -50,7 +51,9 @@ public class MagicStoneManager : Singleton<MagicStoneManager>
             selectedMagicStoneObj.gameObject.SetActive(false);
         }
 
+        MagicStoneInventory.Instance.SaveInventory();
         MagicStoneDictionary.Instance.SelectUIUpdate();
+        DescShow();
     }
 
     public void MagicStonePlaceOnInventory(MagicStoneData data, Vector2 cellPos)
@@ -91,6 +94,7 @@ public class MagicStoneManager : Singleton<MagicStoneManager>
     {
         selectedMagicStoneData = stoneObj.magicStoneData;
         selectedMagicStoneObj = stoneObj;
+        SelectMagicStoneInit();
     }
 
     public void OnClickStone(MagicStoneData stoneData)
@@ -102,10 +106,21 @@ public class MagicStoneManager : Singleton<MagicStoneManager>
         }
 
         selectedMagicStoneObj.Init(stoneData);
-        selectedMagicStoneObj.Image.color = invisibleColor;
-        selectedMagicStoneObj.gameObject.SetActive(true);
+
+        SelectMagicStoneInit();
     }
 
+    public void DescShow()
+    {
+        descText.ShowDescription();
+    }
+    private void SelectMagicStoneInit()
+    {
+        selectedMagicStoneObj.Image.color = invisibleColor;
+        selectedMagicStoneObj.transform.SetAsLastSibling();
+        selectedMagicStoneObj.gameObject.SetActive(true);
+    }
+    
     public bool IsStoneAlreadySelected(MagicStoneData data)
     {
         if (!selectedMagicStoneObj || !selectedMagicStoneObj.gameObject.activeSelf) return false;

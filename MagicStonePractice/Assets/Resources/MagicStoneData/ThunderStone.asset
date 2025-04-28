@@ -17,6 +17,6 @@ MonoBehaviour:
   stoneIcon: {fileID: 21300000, guid: 2c13d1010c449b54588b6327dfdb0224, type: 3}
   stoneName: "\uBC88\uAC1C \uB9C8\uBC95\uC11D"
   skillName: 
-  description: 
+  description: "\uB9C8\uBC95\uC5D0 \uBC88\uAC1C\uC18D\uC131 \uBD80\uC5EC"
   shape:
   - cols: 01010101

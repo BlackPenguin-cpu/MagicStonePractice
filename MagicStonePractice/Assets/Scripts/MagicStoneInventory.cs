@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class MagicStoneInventory : Singleton<MagicStoneInventory>
 {
     public int presetNum = 0;
+    private const int INVENTORY_SIZE = 4;
+
     public List<MagicStoneObj> nowPlaceObjList = new List<MagicStoneObj>();
+    private MagicStoneData[,] inventoryGridState = new MagicStoneData[INVENTORY_SIZE, INVENTORY_SIZE];
 
-    private const int invenSize = 4;
-    private MagicStoneData[,] inventoryGridState = new MagicStoneData[invenSize, invenSize];
-
-    private Dictionary<string, BlockPosInfo> placeStoneInfoDictionary =
+    public Dictionary<string, BlockPosInfo> placeStoneInfoDictionary =
         new Dictionary<string, BlockPosInfo>();
 
     public bool CanPlace(MagicStoneData stoneData, Vector2Int pos)
@@ -28,7 +27,7 @@ public class MagicStoneInventory : Singleton<MagicStoneInventory>
                 int checkY = topLeftPos.y + y;
 
                 //인벤토리 넓이
-                if (checkX < 0 || checkY < 0 || checkX >= invenSize || checkY >= invenSize)
+                if (checkX < 0 || checkY < 0 || checkX >= INVENTORY_SIZE || checkY >= INVENTORY_SIZE)
                     return false; // 범위 초과
 
                 if (checkX is 0 or 3 && checkY is 0 or 3)
@@ -64,8 +63,7 @@ public class MagicStoneInventory : Singleton<MagicStoneInventory>
         }
 
         placeStoneInfoDictionary.Add(stoneData.stoneName, new BlockPosInfo(pos, posList));
-        var saveInfo = new InventoryInfo(placeStoneInfoDictionary);
-        MagicStoneInventorySaveManager.Instance.SaveCurInventory(saveInfo, presetNum);
+        SaveInventory();
 
         return true;
     }
@@ -82,6 +80,11 @@ public class MagicStoneInventory : Singleton<MagicStoneInventory>
         return baseTopLeft + new Vector2Int(offsetX, offsetY);
     }
 
+    public void SaveInventory()
+    {
+        var saveInfo = new InventoryInfo(placeStoneInfoDictionary);
+        MagicStoneInventorySaveManager.Instance.SaveCurInventory(saveInfo, presetNum);
+    }
     public bool IsAlreadyPlace(MagicStoneData stoneData)
     {
         return placeStoneInfoDictionary.ContainsKey(stoneData.stoneName);
@@ -102,10 +105,23 @@ public class MagicStoneInventory : Singleton<MagicStoneInventory>
 
     private void Start()
     {
-        var loadInventory = MagicStoneInventorySaveManager.Instance.LoadInventory(presetNum);
+        presetNum = MagicStoneInventorySaveManager.Instance.LoadPresetIndex();
+        LoadInventory(presetNum);
+    }
+    private void OnApplicationQuit()
+    {
+        MagicStoneInventorySaveManager.Instance.SavePresetIndex(presetNum);
+    }
 
-        if (!loadInventory.HasValue) return;
-        NowStateApply(loadInventory.Value.placeStoneInfoDictionary);
+    private void LoadInventory(int preset)
+    {
+        var loadInventory = MagicStoneInventorySaveManager.Instance.LoadInventory(preset);
+
+        if (loadInventory != null)
+            NowStateApply(loadInventory.Value.placeStoneInfoDictionary);
+
+        MagicStoneDictionary.Instance.SelectUIUpdate();
+        MagicStoneManager.Instance.DescShow();
     }
 
     private void NowStateApply(Dictionary<string, BlockPosInfo> stoneInfoDictionary)
@@ -117,6 +133,25 @@ public class MagicStoneInventory : Singleton<MagicStoneInventory>
             TryPlace(data, blockPosInfo.realPos);
             MagicStoneManager.Instance.MagicStonePlaceOnInventory(data, blockPosInfo.realPos);
         }
+    }
+
+    public void PresetChange(int index)
+    {
+        Init();
+        presetNum = index;
+        LoadInventory(presetNum);
+    }
+
+    private void Init()
+    {
+        foreach (var obj in nowPlaceObjList)
+        {
+            Destroy(obj.gameObject);
+        }
+
+        inventoryGridState = new MagicStoneData[INVENTORY_SIZE, INVENTORY_SIZE];
+        nowPlaceObjList.Clear();
+        placeStoneInfoDictionary.Clear();
     }
 }
 

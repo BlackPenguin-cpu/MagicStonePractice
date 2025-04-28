@@ -12,6 +12,15 @@ public class MagicStoneInventorySaveManager : Singleton<MagicStoneInventorySaveM
         PlayerPrefs.DeleteAll();
     }
 
+    public void SavePresetIndex(int preset)
+    {
+        PlayerPrefs.SetInt(SAVE_NAME, preset);
+    }
+    public int LoadPresetIndex()
+    {
+         return PlayerPrefs.GetInt(SAVE_NAME);
+    }
+    
     public void SaveCurInventory(InventoryInfo curInventoryInfo, int presetNum)
     {
         var serializableData =
@@ -34,7 +43,6 @@ public class MagicStoneInventorySaveManager : Singleton<MagicStoneInventorySaveM
     private void OnApplicationQuit()
     {
         PlayerPrefs.Save();
-        ;
     }
 }
 
