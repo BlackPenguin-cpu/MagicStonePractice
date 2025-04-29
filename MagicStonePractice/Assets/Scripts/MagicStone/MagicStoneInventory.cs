@@ -16,7 +16,7 @@ namespace MagicStone
         public Dictionary<string, BlockPosInfo> placeStoneInfoDictionary =
             new Dictionary<string, BlockPosInfo>();
 
-        public bool CanPlace(MagicStoneData stoneData, Vector2Int pos)
+        private bool IsPlaceable(MagicStoneData stoneData, Vector2Int pos)
         {
             var topLeftPos = GetTopLeftForStone(pos, stoneData.Size);
 
@@ -46,11 +46,11 @@ namespace MagicStone
 
         public bool TryPlace(MagicStoneData stoneData, Vector2Int pos)
         {
-            if (!CanPlace(stoneData, pos)) return false;
+            if (!IsPlaceable(stoneData, pos)) return false;
 
             var topLeftPos = GetTopLeftForStone(pos, stoneData.Size);
 
-            var posList = new DisposableList<Vector2Int>();
+            var posList = new List<Vector2Int>();
             for (int x = 0; x < stoneData.width; x++)
             {
                 for (int y = 0; y < stoneData.height; y++)
@@ -66,7 +66,7 @@ namespace MagicStone
             }
 
             placeStoneInfoDictionary.Add(stoneData.stoneName, new BlockPosInfo(pos, posList));
-            SaveInventory();
+            SaveCurInventory();
 
             return true;
         }
@@ -83,10 +83,9 @@ namespace MagicStone
             return baseTopLeft + new Vector2Int(offsetX, offsetY);
         }
 
-        public void SaveInventory()
+        public void SaveCurInventory()
         {
-            var saveInfo = new InventoryInfo(placeStoneInfoDictionary);
-            MagicStoneInventorySaveManager.Instance.SaveCurInventory(saveInfo, presetNum);
+            MagicStoneInventorySaveManager.Instance.SaveCurInventory(placeStoneInfoDictionary, presetNum);
         }
 
         public bool IsAlreadyPlace(MagicStoneData stoneData)
@@ -97,7 +96,8 @@ namespace MagicStone
         public void UnequippedStone(MagicStoneObj stoneObj)
         {
             var stoneData = stoneObj.magicStoneData;
-            placeStoneInfoDictionary.TryGetValue(stoneData.stoneName, out var posList);
+            if (!placeStoneInfoDictionary.TryGetValue(stoneData.stoneName, out var posList)) return;
+
             if (posList.gridPosList.Count <= 0) return;
 
             foreach (var pos in posList.gridPosList)
@@ -105,6 +105,7 @@ namespace MagicStone
                 inventoryGridState[pos.x, pos.y] = null;
             }
 
+            MagicStoneManager.Instance.magicStoneObjPool.ReturnToPool(stoneObj);
             nowPlaceObjList.Remove(stoneObj);
             placeStoneInfoDictionary.Remove(stoneData.stoneName);
         }
@@ -123,10 +124,10 @@ namespace MagicStone
 
         private void LoadInventory(int preset)
         {
-            var loadInventory = MagicStoneInventorySaveManager.Instance.LoadInventory(preset);
-            
-            if (loadInventory != null)
-                NowStateApply(loadInventory.Value.placeStoneInfoDictionary);
+            var inventoryData = MagicStoneInventorySaveManager.Instance.LoadInventory(preset);
+
+            if (inventoryData != null)
+                NowStateApply(inventoryData);
 
             MagicStoneDictionary.Instance.SelectUIUpdate();
             MagicStoneManager.Instance.DescShow();
@@ -134,10 +135,9 @@ namespace MagicStone
 
         private void NowStateApply(Dictionary<string, BlockPosInfo> stoneInfoDictionary)
         {
-            foreach (var placeStoneInfo in stoneInfoDictionary)
+            foreach (var (key, blockPosInfo) in stoneInfoDictionary)
             {
-                var data = MagicStoneDictionary.Instance.StoneDataDictionary[placeStoneInfo.Key];
-                var blockPosInfo = placeStoneInfo.Value;
+                var data = MagicStoneDictionary.Instance.StoneDataDictionary[key];
                 TryPlace(data, blockPosInfo.realPos);
                 MagicStoneManager.Instance.MagicStonePlaceOnInventory(data, blockPosInfo.realPos);
             }
@@ -145,12 +145,12 @@ namespace MagicStone
 
         public void PresetChange(int index)
         {
-            Init();
+            ResetInventory();
             presetNum = index;
             LoadInventory(presetNum);
         }
 
-        private void Init()
+        private void ResetInventory()
         {
             foreach (var obj in nowPlaceObjList)
             {
@@ -160,20 +160,6 @@ namespace MagicStone
             inventoryGridState = new MagicStoneData[INVENTORY_SIZE, INVENTORY_SIZE];
             nowPlaceObjList.Clear();
             placeStoneInfoDictionary.Clear();
-        }
-    }
-
-    [System.Serializable]
-    public struct InventoryInfo
-    {
-        /// <summary>
-        /// key = BlockName
-        /// </summary>
-        public Dictionary<string, BlockPosInfo> placeStoneInfoDictionary;
-
-        public InventoryInfo(Dictionary<string, BlockPosInfo> placeStoneInfoDictionary)
-        {
-            this.placeStoneInfoDictionary = placeStoneInfoDictionary;
         }
     }
 

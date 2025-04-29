@@ -6,23 +6,25 @@ namespace MagicStone
 {
     public class MagicStoneDescription : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI descText;
-        private const string NoneText = "아무것도 없어용 ㅠㅠㅠ";
+        [SerializeField] 
+        private TextMeshProUGUI descText;
+        
+        private const string NONE_TEXT = "아무것도 없어용 ㅠㅠㅠ";
 
         public void ShowDescription()
         {
-            StringBuilder sb = new StringBuilder();
-            var keyCollection = MagicStoneInventory.Instance.placeStoneInfoDictionary.Keys;
-            if (keyCollection.Count <= 0)
+            if (MagicStoneInventory.Instance.placeStoneInfoDictionary.Count <= 0)
             {
-                descText.text = NoneText;
+                descText.text = NONE_TEXT;
                 return;
             }
 
-            foreach (var obj in keyCollection)
+            var sb = new StringBuilder();
+            foreach (var magicStoneName in MagicStoneInventory.Instance.placeStoneInfoDictionary.Keys)
             {
-                MagicStoneDictionary.Instance.StoneDataDictionary.TryGetValue(obj, out var stoneData);
-                if (!stoneData) continue;
+                if (!MagicStoneDictionary.Instance.StoneDataDictionary.TryGetValue(magicStoneName, out var stoneData)) 
+                    continue;
+                
                 sb.AppendLine(stoneData.description);
             }
 

@@ -11,7 +11,7 @@ namespace MagicStone
         private Image _image;
         public Image Image => _image ??= GetComponent<Image>();
 
-        public void Init(MagicStoneData data)
+        public void MagicStoneObjReset(MagicStoneData data)
         {
             magicStoneData = data;
             Image.sprite = data.stoneIcon;
@@ -37,14 +37,14 @@ namespace MagicStone
 
             localPoint = new Vector2(localPoint.x, -localPoint.y);
             localPoint += objSize / 2;
-            var cellSize = MagicStoneGridManager.CELL_SIZE;
+            var cellSize = MagicStoneExtension.CELL_SIZE;
             for (int i = 0; i < blockSize.x; i++)
             {
                 for (int j = 0; j < blockSize.y; j++)
                 {
                     if (magicStoneData.shape[j][i]) continue;
-                    if (Range(localPoint.x, cellSize * i, cellSize * (i + 1)) &&
-                        Range(localPoint.y, cellSize * j, cellSize * (j + 1)))
+                    if (MagicStoneExtension.Range(localPoint.x, cellSize * i, cellSize * (i + 1)) &&
+                        MagicStoneExtension.Range(localPoint.y, cellSize * j, cellSize * (j + 1)))
                     {
                         return false;
                     }
@@ -52,11 +52,6 @@ namespace MagicStone
             }
 
             return true;
-        }
-
-        private bool Range(float target, float min, float max)
-        {
-            return target > min && target < max;
         }
     }
 }

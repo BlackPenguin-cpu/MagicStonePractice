@@ -11,7 +11,6 @@ public class DisposableList<T> : List<T>, IDisposable
 
     public void Dispose()
     {
-        Clear();
         CollectionPool<DisposableList<T>, T>.Release(this);
     }
 }

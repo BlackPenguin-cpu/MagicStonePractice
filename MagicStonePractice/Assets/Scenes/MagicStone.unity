@@ -2511,7 +2511,6 @@ MonoBehaviour:
   magicStoneParent: {fileID: 60284185}
   magicStonePrefab: {fileID: -8555056702498282537, guid: 1f4f44fa2360428489255144c9f86547, type: 3}
   descText: {fileID: 1569126330}
-  selectedMagicStoneData: {fileID: 0}
   selectedMagicStoneObj: {fileID: 0}
 --- !u!4 &1555595499
 Transform:

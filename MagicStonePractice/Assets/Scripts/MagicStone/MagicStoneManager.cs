@@ -8,8 +8,8 @@ namespace MagicStone
         [SerializeField, HideInInspector] private MagicStoneObj magicStonePrefab;
         [SerializeField, HideInInspector] private MagicStoneDescription descText;
 
-        [SerializeField] private MagicStoneData selectedMagicStoneData;
         [SerializeField] private MagicStoneObj selectedMagicStoneObj;
+        private MagicStoneData SelectedMagicStoneData => selectedMagicStoneObj.magicStoneData;
 
         public ObjectPool<MagicStoneObj> magicStoneObjPool;
 
@@ -29,28 +29,29 @@ namespace MagicStone
 
             if (Input.GetMouseButtonUp(0))
             {
-                OnMouseButtonUp();
+                OnDrop();
             }
         }
 
-        private void OnMouseButtonUp()
+        private void OnDrop()
         {
             if (IsSelectMagicStoneAvailable()) return;
 
             var pos = MagicStoneGridManager.Instance.ScreenToCell(Input.mousePosition);
-            var isPlace = MagicStoneInventory.Instance.TryPlace(selectedMagicStoneData, pos);
+            var isPlace = MagicStoneInventory.Instance.TryPlace(SelectedMagicStoneData, pos);
 
             if (isPlace)
             {
                 MagicStonePlaceOnInventory(selectedMagicStoneObj, pos);
-                selectedMagicStoneObj = null;
             }
             else
             {
                 magicStoneObjPool.ReturnToPool(selectedMagicStoneObj);
             }
 
-            MagicStoneInventory.Instance.SaveInventory();
+            selectedMagicStoneObj = null;
+
+            MagicStoneInventory.Instance.SaveCurInventory();
             MagicStoneDictionary.Instance.SelectUIUpdate();
             DescShow();
         }
@@ -63,13 +64,13 @@ namespace MagicStone
         public void MagicStonePlaceOnInventory(MagicStoneData data, Vector2 cellPos)
         {
             var obj = CreateBlock();
-            obj.Init(data);
+            obj.MagicStoneObjReset(data);
             MagicStonePlaceOnInventory(obj, cellPos);
         }
 
         private void MagicStonePlaceOnInventory(MagicStoneObj obj, Vector2 pos)
         {
-            var stonePos = MagicStoneGridManager.Instance.CellPosToStonePos(pos, obj.magicStoneData.Size);
+            var stonePos = MagicStoneExtension.CellPosToStonePos(pos, obj.magicStoneData.Size);
 
             obj.transform.localPosition = stonePos;
             obj.Image.color = Color.white;
@@ -80,43 +81,27 @@ namespace MagicStone
         {
             if (IsSelectMagicStoneAvailable()) return;
 
-            var pos = BlockParsePos(Input.mousePosition, selectedMagicStoneData.Size);
+            var pos = MagicStoneExtension.BlockParsePos(Input.mousePosition, SelectedMagicStoneData.Size);
             selectedMagicStoneObj.transform.position = pos;
         }
 
-        /// <summary>
-        /// 만약 블럭이 짝수일경우 가운데 부분이 집어진다면 그리드가 애매해지기 때문에
-        /// 따라서 마우스 위치를 왼쪽위 블럭으로 옮긴다
-        /// </summary>
-        private Vector2 BlockParsePos(Vector2 mousePos, Vector2Int blockSize)
-        {
-            int offsetX = blockSize.x % 2 == 0 ? 1 : 0;
-            int offsetY = blockSize.y % 2 == 0 ? 1 : 0;
-            var realSize = MagicStoneGridManager.CELL_SIZE * MagicStoneGridManager.Instance.GridScaleMultiply;
-
-            return mousePos + new Vector2(offsetX * realSize / 2f, -offsetY * realSize / 2f);
-        }
 
         public void OnClickStone(MagicStoneObj stoneObj)
         {
-            selectedMagicStoneData = stoneObj.magicStoneData;
-            selectedMagicStoneObj = stoneObj;
-            SelectMagicStoneInit();
+            OnClickStone(stoneObj.magicStoneData);
         }
-
 
         public void OnClickStone(MagicStoneData stoneData)
         {
-            selectedMagicStoneData = stoneData;
-            selectedMagicStoneObj ??= CreateBlock();
+            selectedMagicStoneObj = CreateBlock();
+            selectedMagicStoneObj.MagicStoneObjReset(stoneData);
 
-            selectedMagicStoneObj.Init(stoneData);
-
-            SelectMagicStoneInit();
+            SelectMagicStoneReset();
         }
+
         private MagicStoneObj CreateBlock()
         {
-            magicStoneObjPool ??= new ObjectPool<MagicStoneObj>(magicStonePrefab, 4, magicStoneParent);
+            magicStoneObjPool ??= new ObjectPool<MagicStoneObj>(magicStonePrefab, 3, magicStoneParent);
             return magicStoneObjPool.Get();
         }
 
@@ -125,7 +110,7 @@ namespace MagicStone
             descText.ShowDescription();
         }
 
-        private void SelectMagicStoneInit()
+        private void SelectMagicStoneReset()
         {
             selectedMagicStoneObj.Image.color = invisibleColor;
             selectedMagicStoneObj.transform.SetAsLastSibling();
@@ -136,7 +121,7 @@ namespace MagicStone
         {
             if (!selectedMagicStoneObj || !selectedMagicStoneObj.gameObject.activeSelf) return false;
 
-            return selectedMagicStoneData == data;
+            return SelectedMagicStoneData == data;
         }
     }
 }

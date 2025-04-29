@@ -13,17 +13,17 @@ namespace MagicStone
         [SerializeField] private List<MagicStoneData> stoneDataList;
 
         private Dictionary<string, MagicStoneData> _stoneDataDictionary;
+
         public Dictionary<string, MagicStoneData> StoneDataDictionary
         {
             get
             {
-                if (_stoneDataDictionary == null)
+                if (_stoneDataDictionary != null) return _stoneDataDictionary;
+
+                _stoneDataDictionary = new Dictionary<string, MagicStoneData>();
+                foreach (var data in stoneDataList)
                 {
-                    _stoneDataDictionary = new Dictionary<string, MagicStoneData>();
-                    foreach (var data in stoneDataList)
-                    {
-                        _stoneDataDictionary.Add(data.stoneName, data);
-                    }
+                    _stoneDataDictionary.Add(data.stoneName, data);
                 }
 
                 return _stoneDataDictionary;
@@ -33,12 +33,12 @@ namespace MagicStone
 
         private List<MagicStoneSelectUI> stoneSelectUIList = new List<MagicStoneSelectUI>();
 
-        void Start()
+        private void Start()
         {
-            StartCoroutine(DictionaryCreate());
+            DictionaryCreate();
         }
 
-        private IEnumerator DictionaryCreate()
+        private void DictionaryCreate()
         {
             foreach (var magicStoneData in stoneDataList)
             {
@@ -49,7 +49,7 @@ namespace MagicStone
                 stoneSelectUIList.Add(selectUI);
             }
 
-            yield return null;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(gridLayoutGroup.transform as RectTransform);
             gridLayoutGroup.enabled = false;
             SelectUIUpdate();
         }

@@ -2,18 +2,20 @@
 
 namespace MagicStone
 {
-    public static class MagicStoneExtension 
+    public static class MagicStoneExtension
     {
         public const float CELL_SIZE = 100f;
 
         public static Vector2 CellPosToStonePos(Vector2 cellPos, Vector2Int size)
         {
-            var xOffset = size.x % 2 == 0 ? 50 : 0;
-            var yOffset = size.y % 2 == 0 ? 50 : 0;
+            var halfCellSize = CELL_SIZE / 2;
+
+            var xOffset = size.x % 2 == 0 ? halfCellSize : 0;
+            var yOffset = size.y % 2 == 0 ? halfCellSize : 0;
 
             var returnValue = new Vector2(cellPos.x - 2, cellPos.y - 2);
-            returnValue *=  CELL_SIZE;
-            returnValue += new Vector2(50 + xOffset, 50 + yOffset);
+            returnValue *= CELL_SIZE;
+            returnValue += new Vector2(halfCellSize + xOffset, halfCellSize + yOffset);
 
             return new Vector2(returnValue.x, -returnValue.y);
         }
@@ -24,6 +26,7 @@ namespace MagicStone
             float y = -(cell.y * CELL_SIZE + CELL_SIZE / 2f);
             return new Vector2(x, y);
         }
+
         /// <summary>
         /// 만약 블럭이 짝수일경우 가운데 부분이 집어진다면 그리드가 애매해지기 때문에
         /// 따라서 마우스 위치를 왼쪽위 블럭으로 옮긴다
@@ -36,7 +39,7 @@ namespace MagicStone
 
             return mousePos + new Vector2(offsetX * realSize / 2f, -offsetY * realSize / 2f);
         }
-        
+
         public static bool Range(float target, float min, float max)
         {
             return target > min && target < max;
