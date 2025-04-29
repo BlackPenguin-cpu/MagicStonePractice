@@ -94,8 +94,9 @@ namespace MagicStone
             return placeStoneInfoDictionary.ContainsKey(stoneData.stoneName);
         }
 
-        public void UnequippedStone(MagicStoneData stoneData)
+        public void UnequippedStone(MagicStoneObj stoneObj)
         {
+            var stoneData = stoneObj.magicStoneData;
             placeStoneInfoDictionary.TryGetValue(stoneData.stoneName, out var posList);
             if (posList.gridPosList.Count <= 0) return;
 
@@ -104,6 +105,7 @@ namespace MagicStone
                 inventoryGridState[pos.x, pos.y] = null;
             }
 
+            nowPlaceObjList.Remove(stoneObj);
             placeStoneInfoDictionary.Remove(stoneData.stoneName);
         }
 
@@ -111,6 +113,7 @@ namespace MagicStone
         {
             presetNum = MagicStoneInventorySaveManager.Instance.LoadPresetIndex();
             presetDropdown.value = presetNum;
+            MagicStoneManager.Instance.DescShow();
         }
 
         private void OnApplicationQuit()

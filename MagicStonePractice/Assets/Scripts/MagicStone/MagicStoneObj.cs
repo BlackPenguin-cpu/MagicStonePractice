@@ -20,7 +20,7 @@ namespace MagicStone
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            MagicStoneInventory.Instance.UnequippedStone(magicStoneData);
+            MagicStoneInventory.Instance.UnequippedStone(this);
             MagicStoneManager.Instance.OnClickStone(this);
         }
 

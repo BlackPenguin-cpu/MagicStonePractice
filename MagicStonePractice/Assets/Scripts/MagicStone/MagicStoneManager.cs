@@ -104,11 +104,6 @@ namespace MagicStone
             SelectMagicStoneInit();
         }
 
-        private MagicStoneObj CreateBlock()
-        {
-            magicStoneObjPool ??= new ObjectPool<MagicStoneObj>(magicStonePrefab, 4, magicStoneParent);
-            return magicStoneObjPool.Get();
-        }
 
         public void OnClickStone(MagicStoneData stoneData)
         {
@@ -118,6 +113,11 @@ namespace MagicStone
             selectedMagicStoneObj.Init(stoneData);
 
             SelectMagicStoneInit();
+        }
+        private MagicStoneObj CreateBlock()
+        {
+            magicStoneObjPool ??= new ObjectPool<MagicStoneObj>(magicStonePrefab, 4, magicStoneParent);
+            return magicStoneObjPool.Get();
         }
 
         public void DescShow()
